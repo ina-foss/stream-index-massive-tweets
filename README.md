@@ -2,7 +2,7 @@
 
 # Tweets collection and indexation infrastructure
 
-Collect massive amounts of tweets using the Twitter streaming APIs and index them with Elasticsearch. 
+Collect massive amounts of tweets using the Twitter streaming APIs and index them with ElasticSearch. 
 
 Deal with indexing delay using a RabbitMQ queue.
 
@@ -20,6 +20,12 @@ streaming APIs to maximize the number of tweets.
 
 
 ## Getting started
+* Clone this repo: 
+
+
+        git clone https://github.com/ina-foss/stream-index-massive-tweets.git
+        cd stream-index-massive-tweets
+
 * Install [Docker](https://docs.docker.com/get-docker/)
 
 * [Create a Twitter developper account and a Twitter App](https://developer.twitter.com/en/docs/basics/apps/overview).
@@ -54,7 +60,7 @@ The stack may take some minutes to be fully deployed. Check if services are depl
 ## Check if streamer is running
     
 To check if a streamer is running, you can simply curl it using its port number (5050 for sample streamer,
-5051, 5052 for the next streamers):
+5051, 5052, etc. for the next streamers):
 
     curl localhost:5050
 
@@ -73,7 +79,7 @@ for the other streamers.
     docker stack rm stream-index
 
 ## Deploy a large number of streamers
-The current configuration provides 4 stream servers from streamer_0 to streamer_1. You can add more in the
+The current configuration provides 4 stream servers from streamer_0 to streamer_3. You can add more in the
 `docker-compose.yml` file, then redeploy the stack.
 
 ## Paper
