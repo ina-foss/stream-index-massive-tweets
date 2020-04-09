@@ -1,3 +1,5 @@
+ ![Collect infrastructure](diagramme_architecture_logo.png)
+
 # Tweets collection and indexation infrastructure
 
 Collect massive amounts of tweets using the Twitter streaming APIs and index them with Elasticsearch. 
@@ -5,7 +7,7 @@ Collect massive amounts of tweets using the Twitter streaming APIs and index the
 Deal with indexing delay using a RabbitMQ queue.
 
 We combine Twitter [Sample](https://developer.twitter.com/en/docs/tweets/sample-realtime/overview/get_statuses_sample)
-and [Filter](https://developer.twitter.com/en/docs/tweets/filter-realtime/api-reference/post-statuses-filter) to maximize the number of returned tweets.
+and [Filter](https://developer.twitter.com/en/docs/tweets/filter-realtime/api-reference/post-statuses-filter)
 streaming APIs to maximize the number of tweets.
 
 ## Summary:
