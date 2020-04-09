@@ -1,0 +1,5 @@
+requests
+twython
+elasticsearch
+flask
+pika==0.11.2

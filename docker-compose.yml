@@ -1,0 +1,165 @@
+version: '3.3'
+
+networks:
+  default:
+    external:
+      name: net0
+
+services:
+  elastic-master:
+    image: 'elasticsearch:5.4'
+    ports:
+      - '9292:9200'
+    volumes:
+      - ${PWD}/data/es_nodes/master:/usr/share/elasticsearch/data
+    command: '-Ecluster.name="tweets" -Enode.name="master" -Enode.master=true -Enode.data=false -Ehttp.cors.allow-credentials=true -Ehttp.cors.enabled=true -Ehttp.cors.allow-origin="*" -Enetwork.host=0.0.0.0 -Enetwork.bind_host=0.0.0.0 -Enetwork.publish_host=elastic-master -Ediscovery.zen.ping.unicast.hosts="elastic-master"'
+    environment:
+    - "ES_JAVA_OPTS=-Xms4g -Xmx4g"
+    labels:
+      type: "platform"
+    deploy:
+      mode: replicated
+      replicas: 1
+#      placement:
+#        constraints:
+#        - node.labels.ogmios-${ENV}-secondary == true
+
+  elastic-slave1:
+    image: 'elasticsearch:5.4'
+    environment:
+    - "ES_JAVA_OPTS=-Xms4g -Xmx4g"
+    volumes:
+      - ${PWD}/data/es_nodes/slave1:/usr/share/elasticsearch/data
+    command: '-Ecluster.name="tweets" -Enode.master=false -Enode.data=true -Enetwork.bind_host=_eth0:ipv4_ -Enetwork.publish_host=_eth0:ipv4_ -Ediscovery.zen.ping.unicast.hosts="elastic-master"'
+    labels:
+      type: "platform"
+    deploy:
+      mode: replicated
+      replicas: 1
+
+  elastic-slave2:
+    image: 'elasticsearch:5.4'
+    environment:
+    - "ES_JAVA_OPTS=-Xms4g -Xmx4g"
+    volumes:
+      - ${PWD}/data/es_nodes/slave2:/usr/share/elasticsearch/data
+    command: '-Ecluster.name="tweets" -Enode.master=false -Enode.data=true -Enetwork.bind_host=_eth0:ipv4_ -Enetwork.publish_host=_eth0:ipv4_ -Ediscovery.zen.ping.unicast.hosts="elastic-master"'
+    labels:
+      type: "platform"
+    deploy:
+      mode: replicated
+      replicas: 1
+
+  kibana:
+    image: 'kibana:5.4'
+    ports:
+      - '5656:5601'
+    depends_on:
+      - 'elastic-master'
+    environment:
+      - ELASTICSEARCH_URL=http://elastic-master:9200
+
+  rabbitmq:
+    image: 'rabbitmq:3.6.14-management'
+    hostname: rabbitmq
+    ports:
+      - 15672:15672
+      - 5672:5672
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: password
+
+      RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: '-rabbit tcp_listeners [{"::",5672}]'
+    restart: on-failure
+    deploy:
+      mode: replicated
+      replicas: 1
+
+  consumer:
+    image: 'python_flask'
+    build: './python_flask'
+    volumes:
+      - ${PWD}:/usr/src/app
+    command: "python /usr/src/app/consumer.py --path /usr/src/app/data/"
+    depends_on:
+      - rabbitmq
+      - elastic-master
+    deploy:
+      mode: replicated
+      replicas: 1
+
+  filter_runner:
+      image: 'python_flask'
+      build: './python_flask'
+      volumes:
+        - ${PWD}:/usr/src/app
+      depends_on:
+        - 'streamer_1'
+        - 'streamer_2'
+        - 'streamer_3'
+
+      command: 'python start_filter.py'
+
+  sample_runner:
+      image: 'python_flask'
+      build: './python_flask'
+      volumes:
+        - ${PWD}:/usr/src/app
+      depends_on:
+        - 'streamer_0'
+      command: 'python start_sample.py'
+
+  concat_files:
+      image: 'python_plain'
+      build: './python_plain'
+      volumes:
+        - ${PWD}:/usr/src/app
+      deploy:
+        mode: replicated
+        replicas: 0
+      command: 'python concat_files.py'
+      restart: "no"
+
+  streamer_0:
+    image: 'python_flask'
+    build: './python_flask'
+    ports:
+      - '5050:5000'
+    volumes:
+      - ${PWD}:/usr/src/app
+    depends_on:
+      - 'elastic-master'
+    command: 'python server.py --path /usr/src/app/data/ --key 0'
+
+  streamer_1:
+    image: 'python_flask'
+    build: './python_flask'
+    ports:
+      - '5051:5000'
+    volumes:
+      - ${PWD}:/usr/src/app
+    depends_on:
+      - 'elastic-master'
+    command: 'python server.py --path /usr/src/app/data/ --key 1'
+
+  streamer_2:
+    image: 'python_flask'
+    build: './python_flask'
+    ports:
+      - '5052:5000'
+    volumes:
+      - ${PWD}:/usr/src/app
+    depends_on:
+      - 'elastic-master'
+    command: 'python server.py --path /usr/src/app/data/ --key 2'
+
+  streamer_3:
+    image: 'python_flask'
+    build: './python_flask'
+    ports:
+      - '5053:5000'
+    volumes:
+      - ${PWD}:/usr/src/app
+    depends_on:
+      - 'elastic-master'
+    command: 'python server.py --path /usr/src/app/data/ --key 3'
