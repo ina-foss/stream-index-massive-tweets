@@ -54,7 +54,7 @@ If you have several accounts, you can get several tokens. Copy them in `config.p
   
 The stack may take some minutes to be fully deployed. Check if services are deployed using
  
-        docker service ls
+    docker service ls
     
 
 ## Check if streamer is running
@@ -74,19 +74,29 @@ for sample streamer, and
     
 for the other streamers.
 
+## Check if tweets are indexed
+
+You can visualize the indexed tweets using Kibana. Type localhost:5656 in your browser.
+If it is the first time you connect on Kibana, you are redirected to the 
+*Configure an index pattern* page. Type `tweets-index*` as index name
+and choose `created_at` as time-field name.
+
 ## Turn off the stack
 
     docker stack rm stream-index
 
 ## Deploy a large number of streamers
-The current configuration provides 4 stream servers from streamer_0 to streamer_3. You can add more in the
+The current configuration provides 4 streaming servers from streamer_0 to streamer_3. 
+It needs 4 different Twitter Developer access tokens in the `config.py` file. 
+
+If you have more access tokens, you can add more streaming servers in the
 `docker-compose.yml` file, then redeploy the stack.
 
 ## Paper
 The reason why we use stop-words to collect tweets is explained in: 
 
 Mazoyer, B., Cagé, J., Hudelot, C., & Viaud, M.-L. (2018). 
-[“Real-time collection of reliable andrepresentative tweets datasets related to newsevents”.](http://ceur-ws.org/Vol-2078/paper2.pdf)
+[“Real-time collection of reliable and representative tweets datasets related to news events”.](http://ceur-ws.org/Vol-2078/paper2.pdf)
  In “Proceedings of the First International Workshop on Analysis of Broad Dynamic Topics over Social Media (BroDyn 2018)”. 
  
  Please cite the paper if you use this infrastructure for research purpose.
