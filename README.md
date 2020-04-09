@@ -13,6 +13,7 @@ streaming APIs to maximize the number of tweets.
 ## Summary:
 * [Getting started](#getting-started)
 * [Check if streamer is running](#check-if-streamer-is-running)
+* [Check if tweets are indexed](#check-if-tweets-are-indexed)
 * [Turn off the stack](#turn-off-the-stack)
 * [Deploy a large number of streamers](#turn-off-the-stack)
 * [Paper](#paper)
