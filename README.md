@@ -20,37 +20,35 @@ streaming APIs to maximize the number of tweets.
 
 
 ## Getting started
-Install [Docker](https://docs.docker.com/get-docker/)
+* Install [Docker](https://docs.docker.com/get-docker/)
 
-[Create a Twitter developper account and a Twitter App](https://developer.twitter.com/en/docs/basics/apps/overview).
+* [Create a Twitter developper account and a Twitter App](https://developer.twitter.com/en/docs/basics/apps/overview).
 Then get the app's [access tokens](https://developer.twitter.com/en/docs/basics/authentication/guides/access-tokens).
 If you have several accounts, you can get several tokens. Copy them in `config.py` within the `ACCESS` list.
 
-Setup other parameters in `config.py` : `KEYWORDS` the keywords you want to track, `LANG` the language of the tweets.
+* Setup other parameters in `config.py` : `KEYWORDS` the keywords you want to track, `LANG` the language of the tweets.
 
-Increase the [system limits on mmap counts](https://www.elastic.co/guide/en/elasticsearch/reference/current/vm-max-map-count.html) if needed:
-
-    sudo sysctl -w vm.max_map_count=262144
+* Increase the [system limits on mmap counts](https://www.elastic.co/guide/en/elasticsearch/reference/current/vm-max-map-count.html) if needed:
+      
+   
+        sudo sysctl -w vm.max_map_count=262144
     
-Build the docker infrastructure
+* Build the docker infrastructure
 
-    docker-compose build
-    
-Initialize a swarm
 
-    docker swarm init
-    
-Create a network
+        docker-compose build
+        docker swarm init
+        docker network create --driver overlay net0 --attachable
+        mkdir -p data/es_nodes/master data/es_nodes/slave1 data/es_nodes/slave2
 
-    docker network create --driver overlay net0 --attachable
+* Deploy docker stack
 
-Deploy docker stack
 
-    docker stack deploy stream-index --compose-file docker-compose.yml --with-registry-auth
+        docker stack deploy stream-index --compose-file docker-compose.yml --with-registry-auth
   
 The stack may take some minutes to be fully deployed. Check if services are deployed using
  
-    docker service ls
+        docker service ls
     
 
 ## Check if streamer is running
