@@ -14,7 +14,7 @@ services:
       - ${PWD}/data/es_nodes/master:/usr/share/elasticsearch/data
     command: '-Ecluster.name="tweets" -Enode.name="master" -Enode.master=true -Enode.data=false -Ehttp.cors.allow-credentials=true -Ehttp.cors.enabled=true -Ehttp.cors.allow-origin="*" -Enetwork.host=0.0.0.0 -Enetwork.bind_host=0.0.0.0 -Enetwork.publish_host=elastic-master -Ediscovery.zen.ping.unicast.hosts="elastic-master"'
     environment:
-    - "ES_JAVA_OPTS=-Xms4g -Xmx4g"
+    - "ES_JAVA_OPTS=-Xms750m -Xmx750m"
     labels:
       type: "platform"
     deploy:
@@ -27,7 +27,7 @@ services:
   elastic-slave1:
     image: 'elasticsearch:5.4'
     environment:
-    - "ES_JAVA_OPTS=-Xms4g -Xmx4g"
+    - "ES_JAVA_OPTS=-Xms750m -Xmx750m"
     volumes:
       - ${PWD}/data/es_nodes/slave1:/usr/share/elasticsearch/data
     command: '-Ecluster.name="tweets" -Enode.master=false -Enode.data=true -Enetwork.bind_host=_eth0:ipv4_ -Enetwork.publish_host=_eth0:ipv4_ -Ediscovery.zen.ping.unicast.hosts="elastic-master"'
@@ -40,7 +40,7 @@ services:
   elastic-slave2:
     image: 'elasticsearch:5.4'
     environment:
-    - "ES_JAVA_OPTS=-Xms4g -Xmx4g"
+    - "ES_JAVA_OPTS=-Xms750m -Xmx750m"
     volumes:
       - ${PWD}/data/es_nodes/slave2:/usr/share/elasticsearch/data
     command: '-Ecluster.name="tweets" -Enode.master=false -Enode.data=true -Enetwork.bind_host=_eth0:ipv4_ -Enetwork.publish_host=_eth0:ipv4_ -Ediscovery.zen.ping.unicast.hosts="elastic-master"'
