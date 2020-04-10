@@ -14,7 +14,7 @@ def stream():
         while True:
             try:
                 r = requests.post("http://streamer_{}:5000/stream".format(i+1),
-                              json={"lang": LANG, "tag": words["tag"], "track": words["track"]})
+                              json={"lang": LANG, "tag": words["tag"], "track": words["track"].split()})
                 break
             except requests.exceptions.ConnectionError:
                 logging.error("Could not connect to server streamer_{}, retrying".format(i+1))

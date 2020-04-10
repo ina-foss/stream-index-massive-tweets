@@ -12,8 +12,10 @@ streaming APIs to maximize the number of tweets.
 
 ## Summary:
 * [Getting started](#getting-started)
+* [Order of OAuth keys](#order-of-oauth-keys)
 * [Check if streamer is running](#check-if-streamer-is-running)
 * [Check if tweets are indexed](#check-if-tweets-are-indexed)
+* [Text files](#text-files)
 * [Turn off the stack](#turn-off-the-stack)
 * [Deploy a large number of streamers](#turn-off-the-stack)
 * [Paper](#paper)
@@ -21,16 +23,21 @@ streaming APIs to maximize the number of tweets.
 
 
 ## Getting started
+### Resources needed
+We run this infrastructure on a 250GB RAM, 16 cores RAID 5 server. 
+You may not be able to run intensive indexation jobs on a desktop computer.
+
+### HowTo
 * Clone this repo: 
 
 
         git clone https://github.com/ina-foss/stream-index-massive-tweets.git
         cd stream-index-massive-tweets
 
-* Install [Docker](https://docs.docker.com/get-docker/)
+* Install [Docker and docker-compose](https://docs.docker.com/compose/install/). Minimum Docker version: 17.12.1.
 
 * [Create a Twitter developper account and a Twitter App](https://developer.twitter.com/en/docs/basics/apps/overview).
-Then get the app's [access tokens](https://developer.twitter.com/en/docs/basics/authentication/guides/access-tokens).
+Then get the app's [OAuth access tokens](https://developer.twitter.com/en/docs/basics/authentication/guides/access-tokens).
 If you have several accounts, you can get several tokens. Copy them in `config.py` within the `ACCESS` list.
 
 * Setup other parameters in `config.py` : `KEYWORDS` the keywords you want to track, `LANG` the language of the tweets.
@@ -39,7 +46,11 @@ If you have several accounts, you can get several tokens. Copy them in `config.p
       
    
         sudo sysctl -w vm.max_map_count=262144
-    
+* Add current user to docker group
+
+
+        sudo groupadd docker
+        sudo usermod -aG docker $USER
 * Build the docker infrastructure
 
 
@@ -57,6 +68,16 @@ The stack may take some minutes to be fully deployed. Check if services are depl
  
     docker service ls
     
+In column REPLICAS, all lines should indicate 1/1.
+
+## Order of OAuth keys
+The order in which you copy OAuth access keys in the `config.yml` is important: the first
+key will be used by service streamer_0, which is always streaming from the Sample API.
+If you don't want to use this API, leave the first key in `ACCESS` empty
+and copy your access key(s) in the next position(s) in the `ACCESS` list.
+
+You may also remove the services streamer_0 and sample_runner from the `docker-compose.yml` file,
+since they will not be used. However, the stack will not fail if you don't.
 
 ## Check if streamer is running
     
@@ -71,7 +92,7 @@ The response should look like:
 
 for sample streamer, and
 
-    {"key": 2, "lang": "fr", "track": ["hier", "toujours", "beaucoup"]}
+    {"key": 2, "lang": "fr", "track": ["je", "tu", "il", "elle", "nous"]}
     
 for the other streamers.
 
@@ -80,18 +101,31 @@ for the other streamers.
 You can visualize the indexed tweets using Kibana. Type localhost:5656 in your browser.
 If it is the first time you connect on Kibana, you are redirected to the 
 *Configure an index pattern* page. Type `tweets-index*` as index name
-and choose `created_at` as time-field name.
+and choose `created_at` as time-field name. You can then type 
+[localhost:5656/app/kibana#/discover](localhost:5656/app/kibana#/discover) 
+in your browser to see the collected tweets.
+
+## Text files
+The tweets are both indexed and stored in json.gz files in 
+
+    stream-index-massive-tweets/data/tweets/$year/$month/$day/$hour/$minutes
+
 
 ## Turn off the stack
 
     docker stack rm stream-index
 
 ## Deploy a large number of streamers
-The current configuration provides 4 streaming servers from streamer_0 to streamer_3. 
-It needs 4 different Twitter Developer access tokens in the `config.py` file. 
+The current configuration provides 2 streaming servers streamer_0 and streamer_1. 
+It needs 2 different Twitter Developer access tokens in the `config.py` file.
 
-If you have more access tokens, you can add more streaming servers in the
+If you have more access tokens, you can add them in `config.py ` 
+and add more streaming servers (streamer_2, streamer_3, etc.) similar to streamer_1 in the
 `docker-compose.yml` file, then redeploy the stack.
+
+You may then want to increase the number of consumers to speed-up indexation:
+    
+    docker service scale stream-index_consumer=2
 
 ## Paper
 The reason why we use stop-words to collect tweets is explained in: 

@@ -95,9 +95,9 @@ services:
         - ${PWD}:/usr/src/app
       depends_on:
         - 'streamer_1'
-        - 'streamer_2'
-        - 'streamer_3'
-
+      deploy:
+        mode: replicated
+        replicas: 1
       command: 'python start_filter.py'
 
   sample_runner:
@@ -107,18 +107,11 @@ services:
         - ${PWD}:/usr/src/app
       depends_on:
         - 'streamer_0'
-      command: 'python start_sample.py'
-
-  concat_files:
-      image: 'python_plain'
-      build: './python_plain'
-      volumes:
-        - ${PWD}:/usr/src/app
       deploy:
         mode: replicated
-        replicas: 0
-      command: 'python concat_files.py'
-      restart: "no"
+        replicas: 1
+      command: 'python start_sample.py'
+
 
   streamer_0:
     image: 'python_flask'
@@ -141,25 +134,3 @@ services:
     depends_on:
       - 'elastic-master'
     command: 'python server.py --path /usr/src/app/data/ --key 1'
-
-  streamer_2:
-    image: 'python_flask'
-    build: './python_flask'
-    ports:
-      - '5052:5000'
-    volumes:
-      - ${PWD}:/usr/src/app
-    depends_on:
-      - 'elastic-master'
-    command: 'python server.py --path /usr/src/app/data/ --key 2'
-
-  streamer_3:
-    image: 'python_flask'
-    build: './python_flask'
-    ports:
-      - '5053:5000'
-    volumes:
-      - ${PWD}:/usr/src/app
-    depends_on:
-      - 'elastic-master'
-    command: 'python server.py --path /usr/src/app/data/ --key 3'
