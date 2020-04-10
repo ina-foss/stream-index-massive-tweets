@@ -102,7 +102,7 @@ You can visualize the indexed tweets using Kibana. Type localhost:5656 in your b
 If it is the first time you connect on Kibana, you are redirected to the 
 *Configure an index pattern* page. Type `tweets-index*` as index name
 and choose `created_at` as time-field name. You can then type 
-[localhost:5656/app/kibana#/discover](localhost:5656/app/kibana#/discover) 
+[localhost:5656/app/kibana#/discover](http://localhost:5656/app/kibana#/discover) 
 in your browser to see the collected tweets.
 
 ## Text files
