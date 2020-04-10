@@ -44,7 +44,7 @@ class sampleStreamer(TwythonStreamer):
             try:
                 rabbit_client = pika.BlockingConnection(
                     pika.ConnectionParameters(host=self.rabbit_host, port=self.rabbit_port,
-                                              # connection_attempts=1000, retry_delay=1,
+                                              connection_attempts=100, retry_delay=2,
                                               # blocked_connection_timeout=1000,
                                               # socket_timeout=1000,
                                               ssl=False,
@@ -93,7 +93,8 @@ class sampleStreamer(TwythonStreamer):
         :param logs: this parameter does not match TwythonStreamer implementation but received from Twitter API.
         """
         if status_code == 401:
-            logging.error("Error 401: Unauthorized. Check if the API access token is correct in file config.py.")
+            logging.error(
+                'Error 401: Unauthorized. Check if the Twitter API access token is correct in file config.py.')
             raise requests.exceptions.HTTPError
         else:
             logging.error("Error {}: {}".format(status_code, data))
