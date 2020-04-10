@@ -9,11 +9,10 @@ e = threading.Event()
 class StreamThread(threading.Thread):
     def __init__(self, key, rabbit_host, rabbit_port, **request):
         """Create a new Thread instance. Its run method will start streamer.
-        :param int key: identifier of the OAuth authentification key to Twitter API. Corresponds to
+        :param int key: identifier of the Twitter OAuth authentication key. Corresponds to
         an index in the config.ACCESS list
         :param dict request: instructions to streamer. request["track"]: a list of keywords tracked by the filter API ;
         request["tag"]: a string that will be added to the tweet body to indicate its collection method
-
         """
         threading.Thread.__init__(self)
         self.key = key

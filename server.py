@@ -38,7 +38,7 @@ def disconnect():
 
 @app.route('/')
 def info():
-    """ Get streamer key, i.e. the OAuth authentification key that was attributed to this streamer, and the current
+    """ Get streamer key, i.e. the OAuth  authentication key that was attributed to this streamer, and the current
     job executed by this streamer
     """
     if s is None:
@@ -52,7 +52,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--path', required=True, help='Path to tweets storage folder')
     parser.add_argument('--key', required=False, default=0, type=int, choices=range(len(ACCESS)),
-                        help='Index of Twitter authentification key (from 0 to %d)' % len(ACCESS))
+                        help='Index of Twitter  authentication key (from 0 to %d)' % len(ACCESS))
     parser.add_argument('--es_host', required=False, default="elasticsearch", help='Host of elasticsearch database')
     parser.add_argument('--es_port', required=False, default=9200, help='Port of elasticsearch database')
     parser.add_argument('--rabbit_host', required=False, default="rabbitmq", help='RabbitMQ host')
