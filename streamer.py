@@ -8,8 +8,6 @@ import pika
 from config import PROXY
 from twython import TwythonStreamer
 
-logging.basicConfig(format='%(asctime)s - %(levelname)s : %(message)s', level=logging.INFO)
-
 
 class sampleStreamer(TwythonStreamer):
     """
@@ -42,7 +40,7 @@ class sampleStreamer(TwythonStreamer):
         self.tag = tag
 
     def open_rabbit_connection(self):
-        for i in range(3):
+        for i in range(10):
             try:
                 rabbit_client = pika.BlockingConnection(
                     pika.ConnectionParameters(host=self.rabbit_host, port=self.rabbit_port,
@@ -55,8 +53,10 @@ class sampleStreamer(TwythonStreamer):
                                                   password='password')))
                 break
             except pika.exceptions.AMQPConnectionError:
+                time.sleep(2)
                 logging.error("pika AMQPConnectionError, retrying")
             except Exception as error:
+                time.sleep(2)
                 logging.error("other error, retrying " + str(error))
 
         return rabbit_client
@@ -83,17 +83,20 @@ class sampleStreamer(TwythonStreamer):
             self.on_success(data)
 
         if self.do_continue == False:
-            print("disconnect")
+            logging.info("disconnect")
             self.disconnect()
 
-    def on_error(self, status_code, data):
+    def on_error(self, status_code, data, logs="logs"):
         """
         :param status_code: The status code returned by the Twitter API
         :param data: The response from Twitter API
-
+        :param logs: this parameter does not match TwythonStreamer implementation but received from Twitter API.
         """
-        print(status_code)
-        print(data)
+        if status_code == 401:
+            logging.error("Error 401: Unauthorized. Check if the API access token is correct in file config.py.")
+            raise requests.exceptions.HTTPError
+        else:
+            logging.error("Error {}: {}".format(status_code, data))
 
     def sample(self, lang=None):
         """
@@ -108,7 +111,7 @@ class sampleStreamer(TwythonStreamer):
                 self.statuses.sample(language=lang)
             except requests.exceptions.ChunkedEncodingError as e:
                 if e is not None:
-                    print("Error (stream will continue): {0}".format(e))
+                    logging.error("Encoding error (stream will continue): {}".format(e))
 
     def filter(self, track='', lang='fr'):
         """
@@ -121,7 +124,7 @@ class sampleStreamer(TwythonStreamer):
                 self.statuses.filter(track=track, language=lang)
             except requests.exceptions.ChunkedEncodingError as e:
                 if e is not None:
-                    print("Error (stream will continue): {0}".format(e))
+                    logging.error("Encoding error (stream will continue): {}".format(e))
                 continue
             except requests.exceptions.ConnectionError as error:
                 logging.error(str(error) + " sleep 5 sec")
