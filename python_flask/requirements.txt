@@ -1,4 +1,4 @@
-requests==2.23.0
+requests==2.31.0
 twython==3.8.2
 elasticsearch
 flask==2.3.2
